@@ -2,20 +2,19 @@
   <v-app id="e3" standalone>
     <main>
       <v-layout row wrap>
-        <v-flex 
-          xs8
-          lg8
-          offset-xs2
+        <v-flex
+          v-for= '(currency,index) in currencies' 
+          xs12
+          lg6
+          offset-lg3
         >
-          <v-card class="blue-grey darken-2 white--text">
-            <v-card-title primary-title>
-              <div class="headline">Unlimited music now</div>
-              <div>Listen to your favorite artists and albums whenenver and wherever, online and offline.</div>
+          <v-card class="blue darken-3 white--text">
+            <v-card-title class="card-container" primary-title>
+              <div class="headline">{{currency.name}}-{{currency.symbol}}</div>
+              <div>USD: {{currency.price_usd | format }} | BTC: {{currency.price_btc | format }} | COP: {{currency.price_cop | format}}  </div>
             </v-card-title>
-            <v-card-actions>
-              <v-btn flat dark>Listen now</v-btn>
-            </v-card-actions>
           </v-card>
+          </br>
         </v-flex>
       </v-layout>
     </main>
@@ -23,12 +22,45 @@
 </template>
 
 <script>
-export default {
-  name: 'Main'
-}
+  import axios from 'axios'
+  
+  export default {
+    name: 'Main',
+    data () {
+      return {
+        currencies: []
+      }
+    },
+    methods: {
+      seedData () {
+        const self = this
+        axios.get('https://api.coinmarketcap.com/v1/ticker/?convert=COP&limit=10')
+          .then(function (response) {
+            self.currencies = response.data
+            console.log(response.data)
+          })
+          .catch(function (error) {
+            console.log(error)
+          })
+      }
+    },
+    filters: {
+      format (value) {
+        let parts = value.toString().split(',')
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+        return parts.join('.')
+      }
+    },
+    mounted () {
+      this.seedData()
+    }
+  }
 </script>
 
-<!--<style scoped> Scoped to limit the css only for this class
- 
+<style scoped>
+.card-container{
+  display: table !important;
+  text-align: center;
+  width: 100%;
+}
 </style>
--->
