@@ -1,5 +1,5 @@
 <template>
-  <v-app id="e3" standalone>
+  <v-app id="e3" v-infinite-scroll='loadMore' standalone>
     <main>
       <v-layout row wrap>
         <v-flex
@@ -23,18 +23,21 @@
 
 <script>
   import axios from 'axios'
-  
+  import infiniteScroll from 'vue-infinite-scroll'
+
   export default {
     name: 'Main',
     data () {
       return {
-        currencies: []
+        currencies: [],
+        items: 10
       }
     },
+    directives: {infiniteScroll},
     methods: {
       seedData () {
         const self = this
-        axios.get('https://api.coinmarketcap.com/v1/ticker/?convert=COP&limit=10')
+        axios.get('https://api.coinmarketcap.com/v1/ticker/?convert=COP&limit=' + this.items)
           .then(function (response) {
             self.currencies = response.data
             console.log(response.data)
@@ -42,6 +45,10 @@
           .catch(function (error) {
             console.log(error)
           })
+      },
+      loadMore () {
+        this.items += 10
+        this.seedData()
       }
     },
     filters: {
